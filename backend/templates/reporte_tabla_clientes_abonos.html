@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% set ruta = "reportes" %}
+{% block body %}
+
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+         <h3>Cuadre de Ruta {% if r_actual %}en {{r_actual.nombre}}{% endif %}
+            
+        </h3>
+        <br>
+        {% if user.role == "admin" %}
+            <div class="row">
+                <div class="col-md-8">
+                <form>
+                    <div class="form-group col-sm-4">
+                        <select class="form-control" name="urlkey_ruta">
+                                <option value="">Todas las rutas</option>
+                            {% for r in rutas %}
+                                <option value="{{r.key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %} >{{r.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="fecha_string" name="fecha_str" placeholder="Fecha Inicio" autocomplete="off"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                        </div>
+                    </div>
+                     <div class="form-group col-sm-4">
+                        <select class="form-control" name="estado">
+                            <option value="">Todos</option>
+                            <option value="A">Activos</option>
+                            <option value="I">Inactivos</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary col-sm-4" type="submit">Fenerar</button>
+                </form>
+                </div>
+            </div>
+        {% endif %}
+        <br>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Créditos con abonos</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Consecutivo</th>
+                                <th>Código Tarjeta</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>FUA</th>
+                                <th>Saldo</th>
+                                <th>Cuota</th>
+                                {% for f in fechas %}
+                                    <th>{{f}}</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if creditos %}
+                            {% for c in creditos %}
+                                <tr>
+                                    <td>{{c.consecutivo}}</td>
+                                    <td>{{c.codigo}}</td>
+                                    <td>{{(c.fecha_cre|gmt6).strftime("%d/%m/%Y")}}</td>
+                                    <td>{{c.cliente.get().nombres}} {{c.cliente.get().apellidos}}</td>
+                                    <td>
+                                    {% if c.fecha_ult_pago %}
+                                        {{(c.fecha_ult_pago).strftime("%d/%m/%Y")}}
+                                    {% endif %}
+                                    </td>
+                                    <td>{{c.saldo}}</td>
+                                    <td>{{c.cuota}}</td>
+                                    {% for f in fechas %}
+                                        <td>{{}}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                        No hay créditos
+                        {% endif %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Detalle Creditos</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Ruta</th>
+                                <th>Cliente</th>
+                                <th># Crédito</th>
+                                <th>Código Tarjeta</th>
+                                <th>Valor</th>
+                                <th>Telefono</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in creditos %}
+                                <tr>
+                                    <td id="fechac{{c.key.id()}}"></td>
+                                    <td>{{c.ruta.get().nombre}}</td>
+                                    <td>{{c.cliente.get().nombres}} {{c.cliente.get().apellidos}}</td>
+                                    <td>{{c.consecutivo}}</td>
+                                    <td>{{c.codigo}}</td>
+                                    <td>{{c.valor}}</td>
+                                    <td>{{c.cliente.get().celular}}</td>
+                                </tr>
+                                <script type="text/javascript">
+                                    var time = moment("{{c.creado.isoformat(' ')}}Z");
+                                    $('#fechac{{c.key.id()}}').text(time.format("dddd D MMM h:mm A"));
+                                </script>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Detalle Entradas y Salidas</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Ruta</th>
+                                <th>Valor</th>
+                                <th>Tipo</th>
+                                <th>Observación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in transacciones %}
+                                <tr>
+                                    <td id="fechat{{t.key.id()}}"></td>
+                                    <td>{{t.ruta.get().nombre}}</td>
+                                    <td>{{t.valor}}</td>
+                                    <td>{{t.tipo}}</td>
+                                    <td>{{t.observacion}}</td>
+                                </tr>
+                                <script type="text/javascript">
+                                    var time = moment("{{t.creado.isoformat(' ')}}Z");
+                                    $('#fechat{{t.key.id()}}').text(time.format("dddd D MMM h:mm A"));
+                                </script>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</div>
+<script type="text/javascript">
+    $('select').change(function() {
+        if ($(this).children('option:first-child').is(':selected')) {
+            $(this).addClass('placeholder');
+        } else {
+            $(this).removeClass('placeholder');
+        }
+    });
+    $( "#fecha_string" ).datepicker();
+    Morris.Donut({
+        element: 'donut-clientes',
+        data: [
+            {label: "Clientes que abonaron", value: {{clientes_abonaron}}},
+            {label: "Clientes que no abonaron", value: {{total_clientes-clientes_abonaron}}}
+        ],
+        colors: ['green', 'red'],
+        resize: true
+    });
+    Morris.Donut({
+        element: 'donut-cuota',
+        data: [
+            {label: "Abonos", value: {{total_abonos}}},
+            {label: "Abonos faltantes", value: {{total_cuota-total_abonos}}}
+        ],
+        colors: ['green', 'red'],
+        resize: true
+    });
+     Morris.Donut({
+        element: 'donut-cuota-p',
+        data: [
+            {label: "Abonos", value: {{(total_abonos*100/total_cuota)|round}}},
+            {label: "Abonos faltantes", value: {{((total_cuota-total_abonos)*100/total_cuota)|round}}}
+        ],
+        colors: ['green', 'red'],
+        formatter: function (y, data) { return y + '%' },
+        resize: true
+    });
+</script>
+<!-- /#page-wrapper -->
+{% endblock %}

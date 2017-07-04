@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% set ruta = "caja" %}
+{% block body %}
+
+<div id="page-wrapper">
+
+    <div class="btn-group btn-group-justified smallscreen" role="group" aria-label="caja">
+        <a href="/abono" class="btn btn-primary">Abono</a>
+        {% if user.role == "admin" or user.role == "supervisor" %}
+          <a href="/gasto" class="btn btn-default blue">Gasto</a>
+        {% endif %}
+    </div>
+
+    <div class="container-fluid">
+        {% if alert %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="alert {{alert[0]}} alert-dismissable" <div class="alert alert-danger alert-dismissable" style="padding-top:0px;margin:0px;">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="top:14px;">&times;</button>
+                <i class="fa fa-info-circle">&nbsp;&nbsp;&nbsp;{{alert[1]}}</i>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        <div class="col-lg-12">
+            <h3>
+                Abonos {% if r_actual %}en {{r_actual.nombre}}{% endif %}
+            </h3>
+        </div>
+        {% if user.role == "admin" %}
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-md-4">
+                <form>
+                    <div class="form-group col-xs-8 form-np">
+                        <select class="form-control" name="urlkey_ruta">
+                            <option value="">Todas las rutas</option>
+                            {% for r in rutas %}
+                              <option value="{{r.key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %}>{{r.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                </form>
+                </div>
+            </div>
+        </div>
+        <br>
+        {% endif %}
+        {% if user.role == "supervisor" %}
+        <div class="col-lg-12">
+            <div class="row">
+              <div class="col-md-4">
+                <form>
+                  <div class="form-group col-xs-8 form-np">
+                    <select class="form-control" name="urlkey_ruta">
+                      <option value="">Todas las rutas</option>
+                      {% for r in rutaSupervisor %}
+                        <option value="{{r.ruta.get().key.urlsafe()}}" {% if r_actual.key==r.ruta.get().key %} selected {% endif %}>{{r.ruta.get().nombre}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                </form>
+              </div>
+            </div>
+        </div>
+        <br>
+        {% endif %}
+        <div class="col-lg-12 smallscreen">
+          <p class="bg-primary text-center">Créditos Activos</p>
+          <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            {% for c in creditos_activos|sort(attribute='nombres') %}
+              <div class="panel-heading" role="tab" id="heading{{c.key.id()}}" style="padding:0px;">
+                <div class="panel-title">
+                  <table class="table table-hover size-12  table-bordered" style="margin-bottom:0px;">
+                  {% if loop.first %}
+                  <thead>
+                      <tr>
+                          <th class="col-xs-4">Cliente</th>
+                          <th class="col-xs-8">Acción</th>
+                      </tr>
+                  </thead>
+                  {% endif %}
+                  <tbody>
+                    <tr>
+                    <td class="col-xs-4">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{c.key.id()}}" aria-expanded="true" aria-controls="collapse{{c.key.id()}}" style="display:block; text-decoration:None; color: black">
+                      {{c.cliente.get().nombres}} {{c.cliente.get().apellidos}} 
+                    </a>
+                    </td>
+                    <td class="col-xs-8">
+                    {% if c.fecha_ult_pago == hoy %}
+                      Pago {{c.ultima_cuota|currency}}
+                    {% else %}
+                      <form method="post" id="form{{c.key.id()}}">
+                        <input name="valor"
+                        {% if c.valor_cuota > c.saldo %}
+                         value="{{c.saldo}}"
+                        {% else %}
+                         value="{{c.valor_cuota}}"
+                        {% endif %}
+                         type="number" id="input{{c.key.id()}}" style="max-width:50px;">
+                        <input type="hidden" value="{{c.key.urlsafe()}}" name="urlkey_credito">
+                        <input type="hidden" value="{{c.ruta.urlsafe()}}" name="urlkey_ruta">
+                        <button type="button" class="btn btn-danger pull-right" id="nopago{{c.key.id()}}" style="padding:4px 8px;"><span class="glyphicon glyphicon-remove"></span></button>
+                        <button type="submit" class="btn btn-success pull-right" style="padding:4px 24px; margin:0px 4px;"><span class="glyphicon glyphicon-ok"></span></button>
+                      </form>
+                      <script type="text/javascript">
+                        $('#nopago{{c.key.id()}}').click( function() {
+                            $('#input{{c.key.id()}}').val(0);
+                            $('#form{{c.key.id()}}').find('button').prop('disabled', true);
+                            $('#form{{c.key.id()}}').submit();
+                        })
+                        $('#form{{c.key.id()}}').submit(function(event) {
+                            var $form = $(this);
+                            $form.find('button').prop('disabled', true);
+                            $('#form{{c.key.id()}}').submit();
+                        });
+                      </script>
+                    {% endif %}
+                    </td>
+                    </tr>
+                  </tbody>
+                  </table>
+                </div>
+              </div>
+              <div id="collapse{{c.key.id()}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{c.key.id()}}">
+                <div class="panel-body">
+                  <div class="col-xs-10">
+                    <strong>Consecutivo:</strong> {{c.consecutivo}}<br>
+                    <strong>Código Tarjeta:</strong> {{c.codigo}}<br>
+                    <strong>Fecha:</strong> {{(c.creado|gmt6).strftime("%d/%m/%Y")}}<br>
+                    <strong>Vence:</strong> {{(c.fecha_ven|gmt6).strftime("%d/%m/%Y")}}<br>
+                    <strong>Saldo:</strong> {{c.saldo|currency}}<br>
+                    {% if user.role == "admin" or user.role == "supervisor" %}
+                      <strong>Ult. Pago:</strong>
+                        {% if c.fecha_ult_pago %}
+                            {{(c.fecha_ult_pago|gmt6).strftime("%d/%m/%Y")}}
+                        {% else %}
+                            0
+                        {% endif %}<br>
+                    {% endif %}
+                    <strong>Cuotas Pagadas:</strong> {{(((c.valor_cuota*c.dias)-c.saldo)/c.valor_cuota)|round(1)}}<br>
+                    <strong>Cuotas faltantes:</strong> {{c.cuotas_faltantes|round(1)}}<br>
+                  </div>
+                  <div class="col-xs-2">
+                    {% if c.fecha_ult_pago == hoy and (user.role == "admin" or user.role == "supervisor") %}
+                      <form action="/abono/borrar" method="post">
+                        <input type="hidden" name="urlkey_credito" value="{{c.key.urlsafe()}}"/>
+                        <button type="submit" class="btn btn-danger btn"><i class="fa fa-fw fa-undo"></i></button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col-lg-12 bigscreen">
+          <p class="bg-primary text-center">Créditos Activos</p>
+          <div class="table-responsive">
+            <table class="table table-hover table-striped table-condensed size-12 table-bordered">
+              <thead>
+                <tr>
+                  <th>Consecutivo</th>
+                  <th>Código Tarjeta</th>
+                  <th>Cliente</th>
+                  <th>Fecha</th>
+                  <th>Vence</th>
+                  <th>Saldo</th>
+                  {% if user.role == "admin" or user.role == "supervisor" %}
+                    <th>Ult. Pago</th>
+                  {% endif %}
+                  <th>C. Pagadas</th>
+                  <th>C. Faltantes</th>
+                  <th>Cuota</th>
+                  <th>Pagar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in creditos_activos|sort(attribute='nombres') %}
+                  {% if c.fecha_ult_pago == hoy and user.role == "empleado"%}
+                  {% else %}
+                  <tr>
+                    <td>{{c.consecutivo}}</td>
+                    <td>{{c.codigo}}</td>
+                    <td>{{c.cliente.get().nombres}} {{c.cliente.get().apellidos}}</td>
+                    <td>{{(c.creado|gmt6).strftime("%d/%m/%Y")}}</td>
+                    <td>{{(c.fecha_ven|gmt6).strftime("%d/%m/%Y")}}</td>
+                    <td>{{c.saldo|currency}}</td>
+                    {% if user.role == "admin" or user.role == "supervisor" %}
+                      {% if c.fecha_ult_pago %}
+                          <td>{{(c.fecha_ult_pago|gmt6).strftime("%d/%m/%Y")}}</td>
+                      {% else %}
+                          <td>0</td>
+                      {% endif %}
+                    {% endif %}
+                    <td>{{(((c.valor_cuota*c.dias)-c.saldo)/c.valor_cuota)|round(1)}}</td>
+                    <td>{{c.cuotas_faltantes|round(1)}}</td>
+                    {% if c.fecha_ult_pago == hoy %}
+                      <td>Pagó {{c.ultima_cuota|currency}}</td>
+                      <td>
+                          {% if user.role == "admin" or user.role == "supervisor" %}
+                          <form action="/abono/borrar" method="post">
+                                  <input type="hidden" name="urlkey_credito" value="{{c.key.urlsafe()}}"/>
+                                  <button type="submit" class="btn btn-danger btn-lg" style="padding:1px 6px; margin-left:5px;"><i class="fa fa-fw fa-trash"></i></button>
+                          </form>
+                          {% endif %}
+                      </td>
+                    {% else %}
+                      <form method="post" id="2form{{c.key.id()}}">
+                        <td>
+                          <input name="valor" {% if c.valor_cuota > c.saldo %} value="{{c.saldo}}" {% else %} value="{{c.valor_cuota}}" {% endif %} type="number" id="2input{{c.key.id()}}" style="max-width:50px;">
+                          <input type="hidden" value="{{c.key.urlsafe()}}" name="urlkey_credito">
+                          <input type="hidden" value="{{c.ruta.urlsafe()}}" name="urlkey_ruta">
+                        </td>
+                        <td>
+                          <button type="submit" class="btn btn-success" style="padding:4px 24px; margin:0px 4px;" id="#2btnsipago{{c.key.id()}}"><span class="glyphicon glyphicon-ok"></span></button>
+                          <button type="button" class="btn btn-danger" id="2nopago{{c.key.id()}}" style="padding:4px 8px;"><span class="glyphicon glyphicon-remove" id="#2btnnopago{{c.key.id()}}"></span></button>
+                        </td>
+                      </form>
+                      <script type="text/javascript">
+                        $('#2nopago{{c.key.id()}}').click( function() {
+                            $('#2input{{c.key.id()}}').val(0);
+                            $('#2btnnopago{{c.key.id()}}').prop('disabled', true);
+                            $('#2btnsipago{{c.key.id()}}').prop('disabled', true);
+                            $('#2form{{c.key.id()}}').submit();
+                        })
+                        $('#2form{{c.key.id()}}').submit(function(event) {
+                            $('#2btnnopago{{c.key.id()}}').prop('disabled', true);
+                            $('#2btnsipago{{c.key.id()}}').prop('disabled', true);
+                            $('#2form{{c.key.id()}}').submit();
+                        });
+                      </script>
+                    {% endif %}
+                  </tr>
+                {% endif %}
+              {% endfor %}
+           </tbody>
+        </table>
+      </div>
+    </div>        
+</div>
+
+<script type="text/javascript">
+    $('select').change(function() {
+        if ($(this).children('option:first-child').is(':selected')) {
+            $(this).addClass('placeholder');
+        } else {
+            $(this).removeClass('placeholder');
+        }
+    });
+    $( "#dateFecha" ).datepicker();
+    $( "#dateFechaCre" ).datepicker();
+    $( "#dateFechaVen" ).datepicker();
+    $( "#dateFechaProxPago" ).datepicker();
+</script>
+{% endblock %}

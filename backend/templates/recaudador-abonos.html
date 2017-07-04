@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% set ruta = "reportes" %}
+{% block body %}
+
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <h3>Planilla de Recaudador con Abonos
+        {% if r_actual %}<small> (Ruta: {{r_actual}})</small>{% endif %}</h3>
+        <br>
+        {% if user.role == "admin" %}
+        <div class="row">
+            <div class="col-md-8">
+            <form>
+                <div class="form-group col-xs-4">
+                    <select class="form-control" name="urlkey_ruta">
+                        <option value="">Todas las rutas</option>
+                        {% for r in rutas %}
+                            <option value="{{r.key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %} >{{r.nombre}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-xs-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="fecha_string" name="fecha_str" placeholder="Fecha Crédito" autocomplete="off"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                    </div>
+                </div>
+                <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+            </form>
+            </div>
+        </div>
+        {% else %}
+            {% if user.role == "supervisor" %}
+            <div class="row">
+                <div class="col-md-8">
+                <form>
+                    <div class="form-group col-xs-4">
+                        <select class="form-control" name="urlkey_ruta">
+                            <option value="">Todas las rutas</option>
+                            {% for r in rutaSupervisor %}
+                                <option value="{{r.ruta.get().key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %}>{{r.ruta.get().nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-xs-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="fecha_string" name="fecha_str" placeholder="Fecha Crédito" autocomplete="off"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="row">
+                <div class="col-md-8">
+                <form>
+                    <div class="form-group col-xs-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="fecha_string" name="fecha_str" placeholder="Fecha Crédito" autocomplete="off"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                </form>
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Detalle Créditos con Abonos</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Consecutivo</th>
+                                <th>Código Tarjeta</th>
+                                <th>Fecha</th>
+                                <th>Nombres</th>
+                                <th>FUA</th>
+                                <th>Saldo</th>
+                                <th>Cuota</th>
+                                {% for f in fechas %}
+                                <th>{{(f|gmt6).strftime("%d/%m/%Y")}}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if creditos %}
+                            {% for c in creditos %}
+                                <tr>
+                                    <td>{{c.consecutivo}}</td>
+                                    <td>{{c.codigo}}</td>
+                                    <td>{{(c.creado|gmt6).strftime("%d/%m/%Y")}}</td>
+                                    <td>{{c.cliente.get().nombres}} {{c.cliente.get().apellidos}}</td>
+                                    <td>
+                                    {% if c.fecha_ult_pago %}
+                                        {{c.fecha_ult_pago}}
+                                    {% endif %}
+                                    </td>
+                                    <td>{{c.saldo|currency}}</td>
+                                    <td>{{c.valor_cuota|currency}}</td>
+                                    {% for i in range(0,9) %}
+                                        <td>
+                                        {% for a in abonos[i] %}
+                                            {% if a.credito==c.key %}
+                                                {{a.valor|currency or ""}}
+                                            {% endif %}
+                                        {% endfor %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                        No hay créditos.
+                        {% endif %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</div>
+<script type="text/javascript">
+    $('select').change(function() {
+        if ($(this).children('option:first-child').is(':selected')) {
+            $(this).addClass('placeholder');
+        } else {
+            $(this).removeClass('placeholder');
+        }
+    });
+    $( "#fecha_string" ).datepicker();
+</script>
+<!-- /#page-wrapper -->
+{% endblock %}

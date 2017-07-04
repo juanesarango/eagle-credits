@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% set ruta = "caja" %}
+{% block body %}
+
+<div id="page-wrapper">
+    
+    <div class="btn-group btn-group-justified smallscreen" role="group" aria-label="caja">
+        <a href="/abono" class="btn btn-default blue">Abono</a>
+        <a href="/gasto" class="btn btn-primary">Gasto</a>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Page Heading -->
+        <div class="col-lg-12">
+            <h3>
+                Ingreso de Gastos
+            </h3>
+            <p class="bg-primary text-center">Datos sobre el gasto</p>
+        </div>
+        <!-- /.row -->
+        <form method="post">
+            <div class="col-lg-8">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-horizontal form-group-sm">
+                            <div class="form-group m-5">
+                                <label for="inputRuta" class="col-sm-5 control-label">Ruta</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" name="urlkey_ruta">
+                                    <option value="" disabled selected>Rutas</option>
+                                    {% if user.role == "admin" %}
+                                        {% for r in rutas %}
+                                            <option value="{{r.key.urlsafe()}}">{{r.nombre}}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if user.role == "supervisor" %}
+                                        {% for r in rutaSupervisor %}
+                                            <option value="{{r.ruta.get().key.urlsafe()}}">{{r.ruta.get().nombre}}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group m-5">
+                                <label for="inputTipoMov" class="col-sm-5 control-label">Tipo</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control placeholder" name="tipo_movimiento" required>
+                                        <option value="" disabled selected>Tipo de Movimiento*</option>
+                                        {% if user.role == "admin" %}
+                                            <option value="EC">Entrada Efectivo</option>
+                                            <option value="SC">Salida Efectivo</option>
+                                        {% endif %}
+                                        <option value="GA">Gastos</option>
+                                        <option value="SS">Salida a socio</option>
+                                        <option value="SU">Sueldo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-horizontal form-group-sm">
+                            <div class="form-group m-5">
+                                <label for="inputValor" class="col-sm-5 control-label">Valor</label>
+                                <div class="col-sm-7">
+                                    <input type="number" class="form-control" name="valor" placeholder="Valor*" autocomplete="off" required>
+                                </div>
+                            </div>
+                            <div class="form-group m-5">
+                                <label for="inputObservacion" class="col-sm-5 control-label">Observación</label>
+                                <div class="col-sm-7">
+                                    <textarea class="form-control" rows="4" name="observacion" style="height:65px;" placeholder="Observación*" autocomplete="off" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="row">
+                    <button type="reset" class="btn btn-danger" style="margin:15px;">Limpiar</button>
+                    <button type="submit" class="btn btn-success" style="margin:15px;">Guardar</button>
+                </div>
+            </div>
+        </form>
+        <br>
+        <div class="col-lg-12">
+            <p class="bg-primary text-center">Gastos Realizados</p>
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-condensed size-12 table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Valor Movimiento</th>
+                            <th>Tipo Movimiento</th>
+                            <th>Observaciones</th>
+                            <th>Ruta</th>
+                            <th>Borrar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transacciones %}
+                            <tr>
+                                <td><span id="id{{t.key.id()}}"></span></td>
+                                <td>{{t.valor|currency}}</td>
+                                <td>{{t.tipo|str_io_cajas}}</td>
+                                <td>{{t.observacion}}</td>
+                                <td>{{t.ruta.get().nombre}}</td>
+                                <td>
+                                    {% if t.creado >= hoy and (user.role == "admin" or user.role == "supervisor") %}
+                                        <form action="/gasto/borrar" method="post">
+                                            <input type="hidden" name="urlkey_transaccion" value="{{t.key.urlsafe()}}"/>
+                                            <button type="submit" class="btn btn-danger"><i class="fa fa-fw fa-trash"></i></button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                                <script type="text/javascript">
+                                    var time = moment("{{(t.creado).isoformat(' ')}}Z");
+                                    $('#id{{t.key.id()}}').text(time.format("dddd D MMM h:mm A"));
+                                </script>
+                            </tr>
+                         {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+    <br>
+    <br>
+    <br>
+    <br>
+</div>
+
+<script type="text/javascript">
+    $('select').change(function() {
+        if ($(this).children('option:first-child').is(':selected')) {
+            $(this).addClass('placeholder');
+        } else {
+            $(this).removeClass('placeholder');
+        }
+    });
+</script>
+<!-- /#page-wrapper -->
+{% endblock %}

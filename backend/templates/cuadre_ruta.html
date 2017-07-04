@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+{% set ruta = "reportes" %}
+{% block body %}
+
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <h3>Cuadre de Ruta 
+        {% if r_actual %}<small> (Ruta: {{r_actual}})</small>{% endif %}</h3>
+        <br>
+        {% if user.role == "admin" %}
+            <div class="row">
+                <div class="col-md-8">
+                <form>
+                    <div class="form-group col-sm-4">
+                        <select class="form-control" name="urlkey_ruta" required>
+                                <option value="">Todas las rutas</option>
+                            {% for r in rutas %}
+                                <option value="{{r.key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %} >{{r.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="fecha_string" name="fecha_str" placeholder="Fecha Reporte" autocomplete="off" required><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary col-sm-4" type="submit">Seleccionar</button>
+                </form>
+                </div>
+            </div>
+        {% else %}
+            {% if user.role == "supervisor" %}
+                <div class="row">
+                    <div class="col-md-8">
+                    <form>
+                        <div class="form-group col-sm-4">
+                            <select class="form-control" name="urlkey_ruta" required>
+                                <option value="">Todas las rutas</option>
+                                {% for r in rutaSupervisor %}
+                                    <option value="{{r.ruta.get().key.urlsafe()}}" {% if r_actual.key==r.ruta.get().key %} selected {% endif %}>{{r.ruta.get().nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="fecha_string" name="fecha_str" placeholder="Fecha Reporte" autocomplete="off" required><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary col-sm-4" type="submit">Seleccionar</button>
+                    </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="col-md-8">
+                    <form>
+                        <div class="form-group col-xs-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="fecha_string" name="fecha_str" placeholder="Fecha Reporte" autocomplete="off"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                    </form>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <br>
+        <div class="row text-center">
+            <div class="col-sm-6 col-md-3">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Resumen Ruta</h3>
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-hover table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th>Total Abonos</th>
+                                    <th>{{total_abonos|currency}}</th>
+                                </tr>
+                                <tr>
+                                    <th>Total Créditos</th>
+                                    <th>{{total_creditos|currency}}</th>
+                                </tr>
+                                <tr>
+                                    <th>Total Entradas</th>
+                                    <th>{{total_entradas|currency}}</th>
+                                </tr>
+                                <tr>
+                                    <th>Sueldos</th>
+                                    <th>{{total_sueldos|currency}}</th>
+                                </tr>
+                                <tr>
+                                    <th>Gastos</th>
+                                    <th>{{total_gastos|currency}}</th>
+                                </tr>
+                                <tr>
+                                    <th>S. Socios</th>
+                                    <th>{{total_salida_socio|currency}}</th>
+                                </tr>
+                                {% if user.role == "admin" %}
+                                    <tr>
+                                        <th>Total Salidas</th>
+                                        <th>{{total_salidas|currency}}</th>
+                                    </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>Caja anterior</th>
+                                    <th>{{caja_anterior|currency}}</th>
+                                </tr>
+                                <tr>
+                                    <th>Total</th>
+                                    <th>{{saldo_total|currency}}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3" style="min-height:200px;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Clientes a cobrar: {{total_clientes}}</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="donut-clientes"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3" style="min-height:250px;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Valor a cobrar: {{total_cuota|currency}}</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="donut-cuota"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3" style="min-height:250px;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Valor a cobrar %</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="donut-cuota-p"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Detalle Abonos</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Ruta</th>
+                                <th>Cliente</th>
+                                <th>Valor</th>
+                                {% if user.role == "admin" or user.role == "supervisor" %}
+                                    <th>Ult. Pago</th>
+                                {% endif %}
+                                <th>C. Faltantes</th>
+                                <th>Saldo</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in abonos %}
+                                <tr>
+                                    <td id="fechaa{{a.key.id()}}"></td>
+                                    <td>{{a.ruta.get().nombre}}</td>
+                                    <td>{{a.cliente.get().nombres}} {{a.cliente.get().apellidos}}</td>
+                                    <td>{{a.valor|currency}}</td>
+                                    {% if user.role == "admin" or user.role == "supervisor" %}
+                                        {% if a.credito.get() %}
+                                            {% if a.credito.get().fecha_ult_pago %}
+                                                <td>{{(a.credito.get().fecha_ult_pago|gmt6).strftime("%d/%m/%Y")}}</td>
+                                            {% else %}
+                                                <td>---</td>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if a.cuotas_faltantes %}
+                                        <td>{{a.cuotas_faltantes|round(1)}}</td>
+                                        <td>{{a.saldo|currency}}</td>
+                                    {% else %}
+                                        {% if a.credito.get() %}
+                                            <td>{{a.credito.get().cuotas_faltantes|round(1)}}</td>
+                                            <td>{{a.credito.get().saldo|currency}}</td>
+                                        {% else %}
+                                            <td>0</td>
+                                            <td>0</td>
+                                        {% endif %}
+                                    {% endif %}
+                                    <td>{{a.usuario}}</td>
+                                </tr>
+                                <script type="text/javascript">
+                                    var time = moment("{{(a.creado).isoformat(' ')}}Z");
+                                    $('#fechaa{{a.key.id()}}').text(time.format("dddd D MMM h:mm A"));
+                                </script>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Detalle Creditos</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Ruta</th>
+                                <th>Cliente</th>
+                                <th># Crédito</th>
+                                <th>Código Tarjeta</th>
+                                <th>Valor</th>
+                                <th>Telefono</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in creditos %}
+                                <tr>
+                                    <td id="fechac{{c.key.id()}}"></td>
+                                    <td>{{c.ruta.get().nombre}}</td>
+                                    <td>{{c.cliente.get().nombres}} {{c.cliente.get().apellidos}}</td>
+                                    <td>{{c.consecutivo}}</td>
+                                    <td>{{c.codigo}}</td>
+                                    <td>{{c.valor|currency}}</td>
+                                    <td>{{c.cliente.get().celular}}</td>
+                                    <td>{{c.usuario}}</td>
+                                </tr>
+                                <script type="text/javascript">
+                                    var time = moment("{{(c.creado).isoformat(' ')}}Z");
+                                    $('#fechac{{c.key.id()}}').text(time.format("dddd D MMM h:mm A"));
+                                </script>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Detalle Entradas y Salidas</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Ruta</th>
+                                <th>Valor</th>
+                                <th>Tipo</th>
+                                <th>Observación</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if transacciones %}
+                                {% for t in transacciones %}
+                                    <tr>
+                                        <td id="fechat{{t.key.id()}}"></td>
+                                        <td>{{t.ruta.get().nombre}}</td>
+                                        <td>{{t.valor|currency}}</td>
+                                        <td>{{t.tipo|str_io_cajas}}</td>
+                                        <td>{{t.observacion}}</td>
+                                        <td>{{t.usuario}}</td>
+                                    </tr>
+                                    <script type="text/javascript">
+                                        var time = moment("{{(t.creado).isoformat(' ')}}Z");
+                                        $('#fechat{{t.key.id()}}').text(time.format("dddd D MMM h:mm A"));
+                                    </script>
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</div>
+<script type="text/javascript">
+    $('select').change(function() {
+        if ($(this).children('option:first-child').is(':selected')) {
+            $(this).addClass('placeholder');
+        } else {
+            $(this).removeClass('placeholder');
+        }
+    });
+    $( "#fecha_string" ).datepicker();
+    Morris.Donut({
+        element: 'donut-clientes',
+        data: [
+            {label: "Clientes que abonaron", value: {{clientes_abonaron}}},
+            {label: "Clientes que no abonaron", value: {{total_clientes-clientes_abonaron}}}
+        ],
+        colors: ['green', 'red'],
+        resize: true
+    });
+    Morris.Donut({
+        element: 'donut-cuota',
+        data: [
+            {label: "Abonos", value: {{total_abonos}}},
+            {label: "Abonos faltantes", value: {{total_cuota-total_abonos}}}
+        ],
+        colors: ['green', 'red'],
+        resize: true
+    });
+    Morris.Donut({
+        element: 'donut-cuota-p',
+        data: [
+            {label: "Abonos", value: {{porcentaje_abonos}}},
+            {label: "Abonos faltantes", value: {{100-porcentaje_abonos}}}
+        ],
+        colors: ['green', 'red'],
+        formatter: function (y, data) { return y + '%' },
+        resize: true
+    });
+</script>
+<!-- /#page-wrapper -->
+{% endblock %}

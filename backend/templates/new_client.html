@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% set ruta = "cliente" %}
+{% block body %}
+
+<div id="page-wrapper">
+	<div class="container-fluid">
+        {% if alert %}
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="alert {{alert[0]}} alert-dismissable" <div class="alert alert-danger alert-dismissable" style="padding-top:0px;margin:0px;">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="top:14px;">&times;</button>
+                        <i class="fa fa-info-circle">&nbsp;&nbsp;&nbsp;{{alert[1]}}</i>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-lg-11">
+                <h3>
+                    Creación de Nuevos clientes
+                </h3>
+                <p class="bg-primary text-center">Información Personal</p>
+            </div>
+        </div>
+        <!-- /.row -->
+        <form method="post" id="new_client" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="form-horizontal form-group-sm" >
+                        <div class="form-group m-5">
+                            <label for="inputName" class="col-sm-5 control-label">Nombres</label>
+                            <div class="col-sm-7">
+                                <input type="text" placeholder="Nombres" class="form-control" name="nombres"autocomplete="off" value="{{cliente.nombres}}" required>
+                            </div>
+                        </div>
+                        <div class="form-group m-5">
+                            <label for="inputLname" class="col-sm-5 control-label">Apellidos</label>
+                            <div class="col-sm-7">
+                                <input type="text" placeholder="Apellidos" class="form-control" name="apellidos" autocomplete="off" value="{{cliente.apellidos}}" required>
+                            </div>
+                        </div>
+                        <div class="form-group m-5">
+                            <label for="inputDoc" class="col-sm-5 control-label">Documento</label>
+                            <div class="col-sm-7">
+                                <input type="number" placeholder="Documento de Identificación" class="form-control" name="documento"autocomplete="off" value="{{cliente.documento}}" required {% if cliente %} readonly {% endif %}>
+                            </div>
+                        </div>
+                        <div class="form-group m-5">
+                            <label for="inputCelular" class="col-sm-5 control-label">Celular</label>
+                            <div class="col-sm-7">
+                                <input type="number" placeholder="Número celular" class="form-control" name="celular" autocomplete="off" value="{{cliente.celular}}" required>
+                            </div>
+                        </div>
+                        {% if user.role == "admin" %}
+                            <div class="form-group m-5">
+                                <label for="inputCelular" class="col-sm-5 control-label">Ruta</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control {% if not cliente %} placeholder {% endif %}" name="urlkey_ruta" required>
+                                        <option value="" disabled selected>Rutas</option>
+                                        {% for r in rutas %}
+                                            <option value="{{r.key.urlsafe()}}" {% if r.key==cliente.ruta %} selected="selected" {% endif %}>{{r.nombre}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if user.role == "supervisor" %}
+                            <div class="form-group m-5">
+                                <label for="inputCelular" class="col-sm-5 control-label">Ruta</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control {% if not cliente %} placeholder {% endif %}" name="urlkey_ruta" required>
+                                        <option value="" disabled selected>Rutas</option>
+                                        {% for r in rutaSupervisor %}
+                                            <option value="{{r.ruta.get().key.urlsafe()}}" {% if r.ruta.get().key==cliente.ruta %} selected="selected" {% endif %}>{{r.ruta.get().nombre}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-horizontal form-group-sm" >
+                        <div class="form-group m-5">
+                            <label for="inputTelCasa" class="col-sm-5 control-label">Teléfono Casa</label>
+                            <div class="col-sm-7">
+                                <input type="number" placeholder="Télefono casa" class="form-control" name="tel_casa" autocomplete="off" value="{{cliente.tel_casa}}" required>
+                            </div>
+                        </div>
+                        <div class="form-group m-5">
+                            <label for="inputDirCasa" class="col-sm-5 control-label">Dirección Casa</label>
+                            <div class="col-sm-7">
+                                <input type="text" placeholder="Dirección casa"class="form-control" name="dir_casa" autocomplete="off" value="{{cliente.dir_casa}}" required>
+                            </div>
+                        </div>
+                        <div class="form-group m-5">
+                            <label for="inputNombreEst" class="col-sm-5 control-label">Nombre Establecimiento</label>
+                            <div class="col-sm-7">
+                                <input type="text" placeholder="Lugar laboral" class="form-control" name="nombre_est" autocomplete="off" value="{{cliente.nombre_est}}" required>
+                            </div>
+                        </div>
+                        <div class="form-group m-5">
+                            <label for="inputDirEst" class="col-sm-5 control-label">Dirección Establecimiento</label>
+                            <div class="col-sm-7">
+                                <input type="text" placeholder="Dirección laboral" class="form-control" name="dir_est" autocomplete="off" value="{{cliente.dir_est}}" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-horizontal form-group-sm" >
+                    <div class="form-group m-2">
+                        <label for="inputImagenDocumento" class="col-sm-3 control-label">Foto Documento</label>
+                        <div class="col-sm-3" align="center">
+                            <input type="file" id="btnDocumento" class="form-control" name="imagen_documento" accept="image/*">
+                        </div>
+                        <br/>
+                        <div class="col-sm-6" align="center">
+                            <img align="middle" id="imgDoc" src="{% if cliente %}/imgDoc?imgDocumento={{cliente.key.urlsafe()}}{% else %}#{% endif %}" width="300" height="225" />
+                        </div>
+                    </div>
+                    <div class="form-group m-2">
+                        <label for="inputImagenNegocio" class="col-sm-3 control-label">Foto Establecimiento</label>
+                        <div class="col-sm-3" align="center">
+                            <input id="btnNegocio" type="file" class="form-control" name="imagen_negocio" accept="image/*">
+                        </div>
+                        <br/>
+                        <div class="col-sm-6" align="center">
+                            <img align="middle" id="imgNeg" src="{% if cliente %}/imgNeg?imgNegocio={{cliente.key.urlsafe()}}{% else %}#{% endif %}" width="300" height="225" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if cliente %}
+                <div class="col-lg-12 text-center">
+                    <div class="row">
+                        <input type="hidden" name="client_urlkey" value="{{cliente.key.urlsafe()}}">
+                        <a href="/cliente" class="btn btn-danger" style="margin:15px;">Cancelar</a>
+                        <button type="submit" class="btn btn-success" style="margin:15px;">Guardar cambios</button>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-lg-12 text-center">
+                    <div class="row">        
+                        <button type="reset" class="btn btn-danger" style="margin:15px;">Limpiar</button>
+                        <button type="submit" class="btn btn-success" style="margin:15px;">Crear usuario</button>
+                    </div>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('select').change(function() {
+        if ($(this).children('option:first-child').is(':selected')) {
+            $(this).addClass('placeholder');
+        } else {
+            $(this).removeClass('placeholder');
+        }
+    });
+    $('#new_client').submit(function(event) {
+        var $form = $(this);
+        $form.find('button').prop('disabled', true);
+        $('#new_client').submit();
+    });
+    // Preview de la imagen subida
+    function readDocumento(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imgDoc').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    $("#btnDocumento").change(function(){
+        readDocumento(this);
+    });
+    function readNegocio(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imgNeg').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    $("#btnNegocio").change(function(){
+        readNegocio(this);
+    });
+</script>
+{% endblock %}

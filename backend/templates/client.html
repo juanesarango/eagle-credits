@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+{% set ruta = "cliente" %}
+{% block body %}
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <div class="col-lg-12">
+            <h3>Clientes
+                <a href="/cliente/nuevo" class="btn btn-md btn-success pull-right"><i class="fa fa-fw fa-plus"></i></a>
+            </h3>
+        </div>  
+        <br>
+        {% if user.role == "admin" %}
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-md-4">
+                        <form>
+                            <div class="form-group col-xs-8 form-np">
+                                <select class="form-control" name="urlkey_ruta" required>
+                                    <option value="">Todas las rutas</option>
+                                    {% for r in rutas %}
+                                        <option value="{{r.key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %}>{{r.nombre}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if user.role == "supervisor" %}
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-md-4">
+                        <form>
+                            <div class="form-group col-xs-8 form-np">
+                                <select class="form-control" name="urlkey_ruta" required>
+                                    <option value="">Todas las rutas</option>
+                                    {% for r in rutaSupervisor %}
+                                        <option value="{{r.ruta.get().key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %}>{{r.ruta.get().nombre}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if urlkey_ruta %}
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-md-4">
+                    <form action="/cliente" method="get">
+                        <input type="hidden" name="urlkey_ruta" value="{{urlkey_ruta}}">
+                        <div class="form-group col-xs-8 form-np">
+                        <input type="text" class="form-control" id="filtro" name="filtro" placeholder="Nombre" autocomplete="off" value="{{filtro}}">
+                        </div>
+                        <button class="btn btn-success col-xs-4" type="submit"><i class="fa fa-fw fa-search"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <br>
+        <div class="col-lg-12 bigscreen">
+            <p class="bg-primary text-center">Clientes Existentes</p>
+        </div>
+        <div class="col-lg-12 bigscreen">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Documento</th>
+                            <th>Teléfono</th>
+                            <th>Celular</th>
+                            <th>Dirección casa</th>
+                            <th>Establecimiento</th>
+                            <th>Dirección establecimiento</th>
+                            <th>Ruta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in clientes|sort(attribute='nombres') %}
+                        <tr {% if c.activo == False %} class="danger inactive" {% endif %}>
+                            <td>{{c.consecutivo}}</td>
+                            <td>{{c.nombres}}</td>
+                            <td>{{c.apellidos}}</td>
+                            <td>{{c.documento}}</td>
+                            <td>{{c.tel_casa}}</td>
+                            <td>{{c.celular}}</td>
+                            <td>{{c.dir_casa}}</td>
+                            <td>{{c.nombre_est}}</td>
+                            <td>{{c.dir_est}}</td>
+                            <td>{{c.ruta.get().nombre}}</td>
+                            <td style="min-width: 140px">
+                                <form action="/cliente" method="get">
+                                    <input type="hidden" name="urlkey_cliente" value="{{c.key.urlsafe()}}">
+                                    <input type="hidden" name="urlkey_ruta" value="{{c.ruta.urlsafe()}}">
+                                    <button class="btn btn-success pull-left" style="padding:1px 6px; margin-right:7px;"><i class="fa fa-fw fa-chevron-down"></i></button>
+                                </form>
+                                {% if user.role == "admin" %}
+                                    {% if c.activo == False %}
+                                        <form action="/admin/activar" method="post">
+                                            <input type="hidden" name="key" value="{{c.key.urlsafe()}}">
+                                            <input type="hidden" name="url" value="/cliente">
+                                            <button class="btn btn-danger pull-right" style="padding:1px 6px;"><i class="fa fa-fw fa-check-circle"></i></button>
+                                        </form>
+                                    {% else %}
+                                        <form action="/admin/desactivar" method="post">
+                                            <input type="hidden" name="key" value="{{c.key.urlsafe()}}">
+                                            <input type="hidden" name="url" value="/cliente">
+                                            <button class="btn btn-danger pull-right" style="padding:1px 6px;"><i class="fa fa-fw fa-times-circle"></i></button>
+                                        </form>
+                                    {% endif %}
+                                    <form action="/admin/eliminar" method="post">
+                                        <input type="hidden" name="key" value="{{c.key.urlsafe()}}">
+                                        <input type="hidden" name="url" value="/cliente">
+                                        <button class="btn btn-danger pull-right" style="padding:1px 6px;" onclick="return confirm('Esta seguro que desea eliminar al usuario {{c.nombres}}?');"><i class="fa fa-fw fa-trash"></i></button>
+                                    </form>
+                                {% endif %}
+                                {% if c.activo != False %}   
+                                    <form action="/cliente/nuevo" method="post">
+                                        <input type="hidden" name="key" value="{{c.key.urlsafe()}}">
+                                        <button class="btn btn-warning pull-right" style="padding:1px 6px; margin-right:7px;"><i class="fa fa-fw fa-edit"></i></button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-12 smallscreen">
+          <p class="bg-primary text-center">Clientes Existentes</p>
+          <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            {% for c in clientes|sort(attribute='nombres') %}
+              <div class="panel-heading" role="tab" id="heading{{c.key.id()}}" style="padding:0px;">
+                <div class="panel-title">
+                  <table class="table table-hover size-12  table-bordered" style="margin-bottom:0px;">
+                  {% if loop.first %}
+                      <thead>
+                        <tr>
+                            <th class="col-xs-4">Apellido</th>
+                            <th class="col-xs-8">Acción</th>
+                        </tr>
+                      </thead>
+                  {% endif %}
+                  <tbody>
+                    <tr>
+                    <td class="col-xs-6">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{c.key.id()}}" aria-expanded="true" aria-controls="collapse{{c.key.id()}}" style="display:block; text-decoration:None; color: black">
+                          {{c.nombres}} {{c.apellidos}} 
+                        </a>
+                    </td>
+                    <td style="col-xs-6">
+                        <form action="/cliente" method="get">
+                            <input type="hidden" name="urlkey_cliente" value="{{c.key.urlsafe()}}">
+                            <input type="hidden" name="urlkey_ruta" value="{{c.ruta.urlsafe()}}">
+                            <button class="btn btn-success pull-left" style="padding:1px 6px; margin-right:7px;"><i class="fa fa-fw fa-chevron-down"></i></button>
+                        </form>                                
+                        {% if user.role == "admin" %}
+                            {% if c.activo == False %}
+                                <form action="/admin/activar" method="post">
+                                    <input type="hidden" name="key" value="{{c.key.urlsafe()}}">
+                                    <input type="hidden" name="url" value="/cliente">
+                                    <button class="btn btn-danger pull-right" style="padding:1px 6px;"><i class="fa fa-fw fa-check-circle"></i></button>
+                                </form>
+                            {% else %}
+                                <form action="/admin/desactivar" method="post">
+                                    <input type="hidden" name="key" value="{{c.key.urlsafe()}}">
+                                    <input type="hidden" name="url" value="/cliente">
+                                    <button class="btn btn-danger pull-right" style="padding:1px 6px;"><i class="fa fa-fw fa-times-circle"></i></button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                        {% if c.activo != False %}
+                            <form action="/cliente/nuevo" method="post">
+                                <input type="hidden" name="key" value="{{c.key.urlsafe()}}">
+                                <button class="btn btn-warning pull-right" style="padding:1px 6px; margin-right:7px;"><i class="fa fa-fw fa-edit"></i></button>
+                            </form>
+                        {% endif %}   
+                    </td>
+                    </tr>
+                  </tbody>
+                  </table>
+                </div>
+              </div>
+              <div id="collapse{{c.key.id()}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{c.key.id()}}">
+                <div class="panel-body">
+                  <strong>Código:</strong> {{c.consecutivo}}<br>
+                  <strong>Documento:</strong> {{c.documento}}<br>
+                  <strong>Teléfono:</strong> {{c.telefono}}<br>
+                  <strong>Celular:</strong> {{c.celular}}<br>
+                  <strong>Dirección Casa:</strong> {{c.dir_casa}}<br>
+                  <strong>Establecimiento:</strong> {{c.nombre_est}}<br>
+                  <strong>Dir. Establecimiento:</strong> {{c.dir_est}}<br>
+                  <strong>Ruta:</strong> {{c.ruta.get().nombre}}<br>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% if creditos %} 
+            <div class="col-lg-12">
+                <p class="bg-primary text-center">Créditos de <strong>{{creditos[0].cliente.get().nombres}} {{creditos[0].cliente.get().apellidos}}</strong></p>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped table-condensed size-12  table-bordered">
+                        <thead>
+                            <tr> 
+                                <th>Consecutivo</th>
+                                <th>Código Tarjeta</th>
+                                <th>Fecha</th>
+                                <th>Ult. Pago</th>
+                                <th>Dias Pago</th>
+                                <th>Estado</th>
+                                <th>Valor</th>
+                                <th>Saldo</th>
+                                <th>C. Faltantes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in creditos|sort(attribute='creado') %}
+                                <tr>
+                                    <td>{{c.consecutivo}}</td>
+                                    <td>{{c.codigo}}</td>
+                                    <td>{{(c.creado).strftime("%d/%m/%Y")}}</td>
+                                    {% if c.fecha_ult_pago %}
+                                        <td>{{(c.fecha_ult_pago).strftime("%d/%m/%Y")}}</td>
+                                        {% if c.estado == "P" %}
+                                            <td>{{(c.fecha_ult_pago - c.creado.date()).days}}</td>
+                                        {% else %}
+                                            <td>{{(hoy.date() - c.creado.date()).days}}</td>
+                                        {% endif %}
+                                    {% else %}
+                                        <td>0</td>
+                                        <td>0</td>
+                                    {% endif %}
+                                    <td>{{c.estado}}</td>
+                                    <td>{{c.valor}}</td>
+                                    <td>{{c.saldo}}</td>
+                                    <td>{{c.cuotas_faltantes}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div style="width: 100%">
+                Documento:
+                <br/>
+                <img src="/imgDoc?imgDocumento={{creditos[0].cliente.get().key.urlsafe()}}" width="600" height="450"/>
+                <br/>
+                <br/>
+                Establecimiento:
+                <br/>
+                <img src="/imgNeg?imgNegocio={{creditos[0].cliente.get().key.urlsafe()}}" width="600" height="450"/>
+            </div>
+            <br/>
+            <div class="col-sm-6 col-md-3" style="min-height:200px; width: 100%;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Abonos último crédito</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="area-clientes"></div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div>
+                <form method="post">
+                    <div class="col-lg-8">
+                        <input type="hidden" name="key" value="{{creditos[0].cliente.get().key.urlsafe()}}">
+                        <div class="row">
+                            <label for="inputNota" class="col-sm-5 control-label">Nueva Nota</label>
+                            <div class="col-sm-7">
+                                <textarea class="form-control" rows="4" name="nota" style="height:65px;" placeholder="Notas" autocomplete="off" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <div class="row">
+                            <input type="hidden" name="urlkey_ruta" value="{{urlkey_ruta}}">
+                            <input type="hidden" name="filtro" value="{{filtro}}">
+                            <button type="reset" class="btn btn-danger" style="margin:15px;">Limpiar</button>
+                            <button type="submit" class="btn btn-success" style="margin:15px;">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <br/>
+            <br/>
+            <div class="col-lg-12 bigscreen">
+                <p class="bg-primary text-center">Notas</p>
+            </div>
+            <div class="col-lg-12 bigscreen">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in notas %}
+                                <tr>
+                                    <td>{{c}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-12 smallscreen">
+              <p class="bg-primary text-center">Notas</p>
+              <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                {% for c in notas %}
+                  <div class="panel-heading" role="tab" id="heading{{c}}" style="padding:0px;">
+                    <div class="panel-title">
+                      <table class="table table-hover size-12  table-bordered" style="margin-bottom:0px;">
+                          {% if loop.first %}
+                              <thead>
+                                <tr>
+                                    <th class="col-xs-4"></th>
+                                </tr>
+                              </thead>
+                          {% endif %}
+                          <tbody>
+                            <tr>
+                                <td class="col-xs-6">
+                                    {{c}}
+                                </td>
+                          </tbody>
+                      </table>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</div>
+
+<script type="text/javascript">
+    Morris.Line({
+        element: 'area-clientes',
+        data: [
+            {% for abono in abonos|sort(attribute='creado',reverse=True) %}
+                { fecha: '{{ abono.creado.date() }}', valor: {{ abono.valor }} },
+            {% endfor %}
+        ],
+        xkey: 'fecha',
+        xLabelFormat: function(fecha) {
+            var monthNames = [ "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" ];
+            return fecha.getDate() + '/' + monthNames[fecha.getMonth()] + '/' + fecha.getFullYear(); 
+        },
+        dateFormat: function (x) { 
+        var d = new Date(x);
+        var monthNames = [ "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" ];
+        return d.getDate() + '/' + monthNames[d.getMonth()] + '/' + d.getFullYear();
+        },
+        ykeys: ['valor'],
+        labels: ['Abono'],
+        resize: true,
+    });
+</script>
+
+{% endblock %}

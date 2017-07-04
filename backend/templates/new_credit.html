@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% set ruta = "credito" %}
+{% block body %}
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+        {% if alert %}
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="alert {{alert[0]}} alert-dismissable" <div class="alert alert-danger alert-dismissable" style="padding-top:0px;margin:0px;">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="top:14px;">&times;</button>
+                        <i class="fa fa-info-circle">&nbsp;&nbsp;&nbsp;{{alert[1]}}</i>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-lg-11">
+                <h3>
+                    Creación de Nuevo Crédito
+                </h3>
+                <p class="bg-primary text-center">Información del nuevo crédito</p>
+            </div>
+        </div>
+        <!-- /.row -->
+        <form method="post" id="new_credito">
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="form-horizontal form-group-sm">
+                    <div class="form-group m-5">
+                        <label for="inputName" class="col-sm-5 control-label">Nombre</label>
+                        <div class="col-sm-7">
+                            <select class="form-control placeholder" name="urlkey_cliente" required>
+                                <option value="" disabled selected>Nombre</option>
+                                {% for c in clientes %}
+                                    {% if c.activo!=False %}
+                                    <option value="{{c.key.urlsafe()}}">{{c.nombres}} {{c.apellidos}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group m-5">
+                        <label for="inputCodigo" class="col-sm-5 control-label">Código Tarjeta</label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="codigo" name="codigo" placeholder="Código rotulado en la tarjeta" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="form-group m-5">
+                        <label for="inputValor" class="col-sm-5 control-label">Valor del Crédito</label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="valor" name="valor" placeholder="Valor del crédito" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="form-group m-5">
+                        <label for="inputTasa" class="col-sm-5 control-label">Porcentaje de Interés</label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="tasa" name="tasa" placeholder="% Tasa del crédito" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="form-group m-5">
+                        <label for="dateFechaCre" class="col-sm-5 control-label">Fecha Crédito</label>
+                        <div class="col-sm-7">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="dateFechaCre" name="fecha_cre" placeholder="Fecha Crédito" autocomplete="off"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group m-5">
+                        <label for="inputTiempoDias" class="col-sm-5 control-label">Tiempo del Crédito</label>
+                        <div class="col-sm-7">
+                            <input type="number" id="dias" class="form-control" name="dias" placeholder="Tiempo de crédito en días" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="form-group m-5">
+                        <label for="abono" class="col-sm-5 control-label">Abono</label>
+                        <div class="col-sm-7">
+                            <input type="number" id="abono" class="form-control" name="abono" placeholder="Abono" autocomplete="off" >
+                        </div>
+                    </div>
+                    <div class="form-group m-5">
+                        <label for="dateFechaVen" class="col-sm-5 control-label">Fecha Vencimiento</label>
+                        <div class="col-sm-7">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="dateFechaVen" name="fecha_ven" placeholder="Fecha Vencimiento" autocomplete="off"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-horizontal form-group-sm" >
+                    
+                    <div class="form-group m-5">
+                        <label for="inputSaldo" class="col-sm-5 control-label">Saldo</label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="saldo" placeholder="Saldo" autocomplete="off" disabled>
+                        </div>
+                    </div>             
+                    <div class="form-group m-5">
+                        <label for="inputValorCuota" class="col-sm-5 control-label">Valor Cuota</label>
+                        <div class="col-sm-7">
+                            <input type="number" class="form-control" id="cuota" name="inputValorCuota" placeholder="Valor de la Cuota" autocomplete="off" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+
+        <div class="row">
+            <div class="col-lg-11 text-center">
+                <div class="row">    
+                    <button type="reset" class="btn btn-danger" style="margin:15px;">Limpiar</button>
+                    <button type="submit" class="btn btn-success" style="margin:15px;">Registrar</button>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('select').change(function() {
+        if ($(this).children('option:first-child').is(':selected')) {
+            $(this).addClass('placeholder');
+        } else {
+            $(this).removeClass('placeholder');
+        }
+    });
+    $( "#dateFechaCre" ).datepicker();
+    $( "#dateFechaCre" ).datepicker("setDate", new Date());
+    $( "#dateFechaVen" ).datepicker();
+    $( "#dateFechaProxPago" ).datepicker();
+    $('#valor').change(function(){
+        var valor = $('#valor').val();
+        var tasa = $('#tasa').val();
+        var dias = $('#dias').val();
+        $('#saldo').val(valor*(tasa/100+1));
+        $('#cuota').val(valor*(tasa/100+1)/(dias))
+    });
+    $('#tasa').change(function(){
+        var valor = $('#valor').val();
+        var tasa = $('#tasa').val();
+        var dias = $('#dias').val();
+        $('#saldo').val(valor*(tasa/100+1));
+        $('#cuota').val(valor*(tasa/100+1)/(dias))
+    })
+    $( '#dias' ).change( function() {
+        var days = parseInt($('#dias').val());
+        var valor = $('#valor').val();
+        var tasa = $('#tasa').val();
+        $( "#dateFechaVen" ).datepicker("setDate", +days);
+        $('#cuota').val(valor*(tasa/100+1)/(days))
+    });
+    $('#new_credito').submit(function(event) {
+        var $form = $(this);
+        $form.find('button').prop('disabled', true);
+        $('#new_credito').submit();
+    });
+</script>
+{% endblock %}

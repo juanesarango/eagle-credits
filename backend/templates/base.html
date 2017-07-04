@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+    <!-- Web Mobile -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/static/img/logoBlue.png"/>
+    <link rel="icon" sizes="192x192" href="/static/img/logoBlue.png">
+    <link rel="apple-touch-startup-image" href="/static/img/eaglelauncher.jpg">
+    <meta name="apple-mobile-web-app-title" content="VA App">
+
+	<title>Inversiones VA</title>
+
+	<!-- Bootstrap Core CSS -->
+	<link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- Custom CSS -->
+	<link href="/static/css/sb-admin.css" rel="stylesheet">
+
+
+    <!-- Custom Fonts -->
+	<link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    
+    
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+
+    <script src="/static/js/datepicker-es.js"></script>
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+
+    <script src="/static/js/moment-with-locales.js"></script>
+    <script type="text/javascript">moment.locale('es');</script>
+
+</head>
+
+<body>
+    <div id="wrapper">
+        <!-- Navigation -->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="bigscreen">
+                <div class="navbar-header">
+                    <h3 style="margin-top: 0px;">
+                    <a class="navbar-brand fa" href="/index">Inversiones     <img src="/static/img/logoWhite.png" class="img-responsive brand" style="width: 4%; display:inline; margin-bottom: 16px;"></a>
+                    </h3>
+                </div>
+                <a href="/depurar">x</a>
+                <!-- Top Menu Items -->
+                <ul class="nav navbar-right top-nav">
+                    <li><a href="#" class="disabled"><i class="fa fa-fw fa-user"></i> {{user.usuario}}</a></li>
+                    <li>
+                        <a href="/logout"><i class="fa fa-fw fa-power-off"></i>Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="smallscreen">
+                <ul class="nav navbar-right top-nav pull-left" id="back-btn">
+                    <li>
+                        <a onclick="back()" style="padding: 15px 10px;"><i class="fa fa-fw fa-chevron-left" style="font-size:20px;"></i></a>
+                    </li>
+                </ul>>
+                <div class="navbar-header">
+                    <h3 style="margin-top: 0px;">
+                        <a class="navbar-brand fa" href="/index">VA<small> App</small></a>
+                    </h3>
+                    <a href="/depurar">x</a>
+                </div>
+                <!-- Top Menu Items -->
+                <ul class="nav navbar-right top-nav pull-right">
+                    <li>
+                        <a href="#" class="disabled"><i class="fa fa-fw fa-user"></i> {{user.usuario}}</a>
+                    </li>
+                    <li>
+                        <a href="/logout" style="padding:15px 10px;"><i class="fa fa-fw fa-power-off" style="font-size:20px;"></i></a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav side-nav">
+                    <br>
+                    {% if user.role == "admin" %}
+                    <li>
+                        <a href="/admin"><i class="fa fa-fw fa-gears"></i> Administrador</a>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a href="/cliente" data-toggle="collapse" data-target="#demo2"><i class="fa fa-fw fa-user"></i> Clientes</a>
+                    </li>
+                    <li>
+                        <a href="/credito" data-toggle="collapse" data-target="#demo3"><i class="fa fa-fw fa-bank"></i> Créditos</a>
+                    </li>
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#demo4"><i class="fa fa-fw fa-money"></i> Caja <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="demo4" class="collapse">
+                            <li>
+                                <a href="/abono">Pagar Abono</a>
+                            </li>
+                            {% if user.role == "admin"%}
+                                <li>
+                                    <a href="/gasto">Ingreso Gastos</a>
+                                </li>
+                                <li>
+                                    <a href="/traslado">Traslado de efectivo</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    <li>
+                        <a a href="javascript:;" data-toggle="collapse" data-target="#demo5"><i class="glyphicon glyphicon-list-alt"></i> Reportes <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="demo5" class="collapse" style="height: auto; max-height: 320px; overflow-x: hidden; overflow-y:scroll">
+                            <li>
+                                <a href="/reportes/cuadre-recaudador">Cuadre Recaudador</a>
+                            </li>
+                            {% if user.role == "admin" %}
+                                <li>
+                                    <a href="/reportes/cuadre-rutas">Cuadre Ruta</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/recaudador">Planilla De Recaudador</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/recaudador-manual">Planilla De Recaudador Manual</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/recaudador-abonos">Planilla De Recaudador Con Abonos</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/gastos-rutas">Gastos Rutas</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/client_good">Clientes Puntuales</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/client_expired">Clientes 25 días</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/clientes-mora">Clientes morosos</a>
+                                </li>
+                            {% endif %}
+                            {% if user.role == "supervisor" %}
+                                <li>
+                                    <a href="/reportes/cuadre-rutas">Cuadre Ruta</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/recaudador">Planilla De Recaudador</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/recaudador-manual">Planilla De Recaudador Manual</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/recaudador-abonos">Planilla De Recaudador Con Abonos</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/gastos-rutas">Gastos Rutas</a>
+                                </li>
+                                <!--<li>
+                                    <a href="/reportes/client_good">Clientes Puntuales</a>
+                                </li>-->
+                                <li>
+                                    <a href="/reportes/client_expired">Clientes 25 días</a>
+                                </li>
+                                <li>
+                                    <a href="/reportes/clientes-mora">Clientes morosos</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </nav>
+        {% block body %}
+            {% if alert %}
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert {{alert[0]}} alert-dismissable" <div class="alert alert-danger alert-dismissable" style="padding-top:0px;margin:0px;">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="top:14px;">&times;</button>
+                            <i class="fa fa-info-circle">&nbsp;&nbsp;&nbsp;{{alert[1]}}</i>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endblock %}
+        <nav class="navbar navbar-inverse navbar-fixed-bottom smallscreen hidden-print" role="navigation">
+            <div class="foot-nav">
+                <div class="row">
+                    {% if user.role == "admin" %}
+                        <div class="col-xs-2 col-xs-offset-1 text-center">
+                            <li>
+                                <a href="/admin" class="foot-a {% if ruta=="admin" %} active-page {% endif %}"><i class="fa fa-fw fa-gears"></i></a>
+                            </li>
+                        </div>
+                        <div class="col-xs-2 text-center">
+                            <li>
+                                <a href="/cliente" class="foot-a {% if ruta=="cliente" %} active-page {% endif %}"><i class="fa fa-fw fa-user"></i></a>
+                            </li>
+                        </div>
+                        <div class="col-xs-2 text-center">
+                            <li>
+                                <a href="/credito" class="foot-a {% if ruta=="credito" %} active-page {% endif %}"><i class="fa fa-fw fa-bank"></i></a>
+                            </li>
+                        </div>
+                        <div class="col-xs-2 text-center">
+                            <li>
+                                <a href="/abono" class="foot-a {% if ruta=="caja" %} active-page {% endif %}" data-toggle="collapse" data-target="#demo4"><i class="fa fa-fw fa-money"></i></a>
+                            </li>
+                        </div>
+                        <div class="col-xs-2 text-center">
+                            <li>
+                                <a href="/reportes" class="foot-a {% if ruta=="reportes" %} active-page {% endif %}" data-toggle="collapse" data-target="#demo5"><i class="glyphicon glyphicon-list-alt"></i></a>
+                                <ul id="demo5" class="collapse" style="height: auto; max-height: 320px; overflow-x: hidden; overflow-y:scroll">
+                                </ul>
+                            </li>
+                        </div>
+                    {% else %}
+                        {% if user.role == "supervisor" %}
+                            <div class="col-xs-3 text-center">
+                                <li>
+                                    <a href="/cliente" class="foot-a {% if ruta=="cliente" %} active-page {% endif %}"><i class="fa fa-fw fa-user"></i></a>
+                                </li>
+                            </div>
+                            <div class="col-xs-3 text-center">
+                                <li>
+                                    <a href="/credito" class="foot-a {% if ruta=="credito" %} active-page {% endif %}"><i class="fa fa-fw fa-bank"></i></a>
+                                </li>
+                            </div>
+                            <div class="col-xs-3 text-center">
+                                <li>
+                                    <a href="/abono" class="foot-a {% if ruta=="caja" %} active-page {% endif %}" data-toggle="collapse" data-target="#demo4"><i class="fa fa-fw fa-money"></i></a>
+                                </li>
+                            </div>
+                            <div class="col-xs-3 text-center">
+                                <li>
+                                    <a href="/reportes" class="foot-a {% if ruta=="reportes" %} active-page {% endif %}" data-toggle="collapse" data-target="#demo5"><i class="glyphicon glyphicon-list-alt"></i></a>
+                                    <ul id="demo5" class="collapse" style="height: auto; max-height: 320px; overflow-x: hidden; overflow-y:scroll">
+                                    </ul>
+                                </li>
+                            </div>
+                        {% else %}
+                            <div class="col-xs-3 text-center">
+                                <li>
+                                    <a href="/cliente" class="foot-a {% if ruta=="cliente" %} active-page {% endif %}"><i class="fa fa-fw fa-user"></i></a>
+                                </li>
+                            </div>
+                            <div class="col-xs-3 text-center">
+                                <li>
+                                    <a href="/credito" class="foot-a {% if ruta=="credito" %} active-page {% endif %}"><i class="fa fa-fw fa-bank"></i></a>
+                                </li>
+                            </div>
+                            <div class="col-xs-3 text-center">
+                                <li>
+                                    <a href="/abono" class="foot-a {% if ruta=="caja" %} active-page {% endif %}" data-toggle="collapse" data-target="#demo4"><i class="fa fa-fw fa-money"></i></a>
+                                </li>
+                            </div>
+                            <div class="col-xs-3 text-center">
+                                <li>
+                                    <a href="/reportes/cuadre-recaudador" class="foot-a {% if ruta=="reportes" %} active-page {% endif %}" data-toggle="collapse" data-target="#demo5"><i class="glyphicon glyphicon-list-alt"></i></a>
+                                </li>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery 
+    <script src="/static/js/jquery.js"></script>
+    -->
+    <script src="/static/js/jquery.cookie.js"></script>
+
+    <script src="/static/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        if(window.navigator.standalone == true) {
+        // My app is installed in iOS and therefore fullscreen
+            //Activate Back button
+        }
+        function back() {
+            window.history.go(-1);
+        }
+    </script>
+    <script type="text/javascript">
+        var visited = $.cookie("visited")
+
+        if (visited == null) {
+            $('#back-btn').hide();
+            $.cookie('visited', 'yes');          
+        }
+        $.cookie('visited', 'yes');
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% set ruta = "cliente" %}
+{% block body %}
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <!-- Page Heading -->
+        <div class="col-lg-12">
+            <h3>Clientes Puntuales</h3>
+        </div>  
+        <br>
+        {% if user.role == "admin" %}
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-md-8">
+                    <form>
+                        <div class="form-group col-xs-8 form-np">
+                            <label for="inputRole" class="col-sm-5 control-label">Estado</label>
+                            <select class="form-control" name="estado" required>
+                                <option value="P">Pagado</option>
+                                <option value="A">Activo</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-xs-8 form-np">
+                            <select class="form-control" name="urlkey_ruta" required>
+                                <option value="">Todas las rutas</option>
+                                {% for r in rutas %}
+                                    <option value="{{r.key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %}>{{r.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if user.role == "supervisor" %}
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-md-4">
+                    <form>
+                        <div class="form-group col-xs-8 form-np">
+                            <label for="inputRole" class="col-sm-5 control-label">Estado</label>
+                            <select class="form-control" name="estado" required>
+                                <option value="P">Pagado</option>
+                                <option value="A">Activo</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-xs-8 form-np">
+                            <select class="form-control" name="urlkey_ruta" required>
+                                <option value="">Todas las rutas</option>
+                                {% for r in rutaSupervisor %}
+                                    <option value="{{r.ruta.get().key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %}>{{r.ruta.get().nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <br>
+        <div class="col-lg-12 bigscreen">
+            <p class="bg-primary text-center">Clientes Puntuales</p>
+        </div>
+        <div class="col-lg-12">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-condensed size-12 table-bordered">
+                    <thead>
+                        <tr> 
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Teléfono</th>
+                            <th>Celular</th>
+                            <th>Ruta</th>
+                            <th>Consecutivo Crédito</th>
+                            <th>Código Tarjeta</th>
+                            <th>Fecha</th>
+                            <th>Ult. Pago</th>
+                            <th>Dias Pago</th>
+                            <th>Valor</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in creditos|sort(attribute='creado') %}
+                            {% if c.cliente.get() %}
+                                <tr>
+                                    <td>{{c.cliente.get().nombres}}</td>
+                                    <td>{{c.cliente.get().apellidos}}</td>
+                                    <td>{{c.cliente.get().tel_casa}}</td>
+                                    <td>{{c.cliente.get().celular}}</td>
+                                    <td>{{c.cliente.get().ruta.get().nombre}}</td>
+                                    <td>{{c.consecutivo}}</td>
+                                    <td>{{c.codigo}}</td>
+                                    <td>{{(c.creado|gmt6).strftime("%d/%m/%Y")}}</td>
+                                    {% if c.fecha_ult_pago %}
+                                        <td>{{(c.fecha_ult_pago|gmt6).strftime("%d/%m/%Y")}}</td>
+                                        {% if c.estado == "P" %}
+                                            <td>{{(c.fecha_ult_pago - c.creado.date()).days}}</td>
+                                        {% else %}
+                                            <td>{{(hoy.date() - c.creado.date()).days}}</td>
+                                        {% endif %}
+                                    {% else %}
+                                        <td>0</td>
+                                        <td>0</td>
+                                    {% endif %}
+                                    <td>{{c.valor}}</td>
+                                    <td>{{c.estado}}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- /.container-fluid -->
+
+<script type="text/javascript">
+</script>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+"""
+These controllers are called when it initialises for accessing them more easily.
+"""
+
+from base_controller import BaseController
+
+from index_controller import IndexController
+from main_controller import MainController
+from main_controller import DownloadController
+
+from client_controller import ClientController
+from client_controller import NewClientController
+from client_controller import ImagenDocumento
+from client_controller import ImagenNegocio
+
+from credit_controller import CreditController
+from credit_controller import NewCreditController
+from credit_controller import DeleteCreditController
+
+from cashbox_controller import DepositController
+from cashbox_controller import ExpenseController
+from cashbox_controller import TrasladoController
+from cashbox_controller import DeleteAbonoController
+from cashbox_controller import DeleteTransaccionController
+
+from login_controller import LoginController
+from login_controller import LogoutController
+
+from admin_controller import AdminController
+from admin_controller import CiudadController
+from admin_controller import CajaController
+from admin_controller import RutaController
+from admin_controller import UsuarioController
+from admin_controller import EnableController
+from admin_controller import DisableController
+from admin_controller import DeleteController
+from admin_controller import BorrarController
+from admin_controller import DepurarController
+from admin_controller import DepurarAbonoController
+from admin_controller import DepurarCreditoController
+from admin_controller import DeleteCronController
+
+from reportes_controller import ReportesController
+from reportes_controller import CuadreRutaController
+from reportes_controller import RecaudadorAbonosController
+from reportes_controller import CrearStatsDiariosController
+from reportes_controller import ActualizarStatsDiariosController
+from reportes_controller import CuadreRutaResumenController
+from reportes_controller import RecaudadorManualController
+from reportes_controller import RecaudadorController
+from reportes_controller import GastosRutasController
+from reportes_controller import ClientesMoraController
+from reportes_controller import ClientesDiasController
+from reportes_controller import ClientesPuntualesController
+
+from admin_controller import UpdateTimeZone

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% set ruta = "reportes" %}
+{% block body %}
+
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <h3>Depuracion</h3>
+        <br>
+        <div class="row">
+            <div class="col-md-8">
+            <form>
+                <div class="form-group col-sm-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="fecha_string" name="fecha_str" placeholder="Fecha Reporte" autocomplete="off" required value="{{fecha}}"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                    </div>
+                </div>
+                <button class="btn btn-primary col-sm-4" type="submit">Seleccionar</button>
+            </form>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            {% if abonos %}
+                <form action="/depurar/abono" method="post">
+                    <input type="hidden" name="fecha" value="{{fecha}}"/>
+                    <button type="submit" class="btn btn-danger  pull-right" style="padding:1px 6px; margin-left:5px;"><i class="fa fa-fw fa-trash"></i></button>
+                </form>
+            {% endif %}
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Detalle Abonos</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Ruta</th>
+                                <th>Cliente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in abonos %}
+                                <tr>
+                                    <td id="fechaa{{a.key.id()}}"></td>
+                                    <td>{{a.ruta.get().nombre}}</td>
+                                    <td>{{a.cliente.get().nombres}} {{a.cliente.get().apellidos}}</td>
+                                </tr>
+                                <script type="text/javascript">
+                                    var time = moment("{{(a.creado).isoformat(' ')}}Z");
+                                    $('#fechaa{{a.key.id()}}').text(time.format("dddd D MMM h:mm A"));
+                                </script>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            {% if creditos %}
+                <form action="/depurar/credito" method="post">
+                    <input type="hidden" name="fecha" value="{{fecha}}"/>
+                    <button type="submit" class="btn btn-danger  pull-right" style="padding:1px 6px; margin-left:5px;"><i class="fa fa-fw fa-trash"></i></button>
+                </form>
+            {% endif %}
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Detalle Creditos</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Ruta</th>
+                                <th>Cliente</th>
+                                <th># Crédito</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in creditos %}
+                                <tr>
+                                    <td id="fechac{{c.key.id()}}"></td>
+                                    <td>{{c.ruta.get().nombre}}</td>
+                                    <td>{{c.cliente.get().nombres}} {{c.cliente.get().apellidos}}</td>
+                                    <td>{{c.consecutivo}}</td>
+                                </tr>
+                                <script type="text/javascript">
+                                    var time = moment("{{(c.creado).isoformat(' ')}}Z");
+                                    $('#fechac{{c.key.id()}}').text(time.format("dddd D MMM h:mm A"));
+                                </script>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $( "#fecha_string" ).datepicker();
+</script>
+{% endblock %}

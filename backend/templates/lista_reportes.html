@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>Reportes</h2>
+                <ul class="nav nav-pills nav-stacked">
+                    <li>
+                        <a href="/reportes/cuadre-recaudador">Cuadre Recaudador</a>
+                    </li>
+                    {% if user.role == "admin" %}
+                        <li>
+                            <a href="/reportes/cuadre-rutas">Cuadre Ruta</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/recaudador">Planilla De Recaudador</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/recaudador-manual">Planilla De Recaudador Manual</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/recaudador-abonos">Planilla De Recaudador Con Abonos</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/gastos-rutas">Gastos Rutas</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/client_good">Clientes Puntuales</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/client_expired">Clientes 25 días</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/clientes-mora">Clientes morosos</a>
+                        </li>
+                    {% endif %}
+                    {% if user.role == "supervisor" %}
+                        <li>
+                            <a href="/reportes/cuadre-rutas">Cuadre Ruta</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/recaudador">Planilla De Recaudador</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/recaudador-manual">Planilla De Recaudador Manual</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/recaudador-abonos">Planilla De Recaudador Con Abonos</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/gastos-rutas">Gastos Rutas</a>
+                        </li>
+                        <!--<li>
+                            <a href="/reportes/client_good">Clientes Puntuales</a>
+                        </li>-->
+                        <li>
+                            <a href="/reportes/client_expired">Clientes 25 días</a>
+                        </li>
+                        <li>
+                            <a href="/reportes/clientes-mora">Clientes morosos</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+
+</div>
+<!-- /#page-wrapper -->
+{% endblock %}

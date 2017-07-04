@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% set ruta = "credito" %}
+{% block body %}
+
+<div id="page-wrapper">
+    <div class="container-fluid">
+      <!-- Page Heading -->
+      <div class="col-lg-12">
+        <h3>Créditos {% if r_actual %}en {{r_actual.nombre}}{% endif %}
+          <a {% if r_actual %} href="/credito/nuevo?urlkey_ruta={{r_actual.key.urlsafe()}}" {% else %} href="/credito/nuevo" {% endif %} class="btn btn-md btn-success pull-right"><i class="fa fa-fw fa-plus"></i></a>
+        </h3>
+      </div>
+      <br>
+      {% if user.role == "admin" %}
+        <div class="col-lg-12">
+          <div class="row">
+            <div class="col-md-4">
+              <form>
+                <div class="form-group col-xs-8 form-np">
+                  <select class="form-control" name="urlkey_ruta" required>
+                    <option value="">Todas las rutas</option>
+                    {% for r in rutas %}
+                      <option value="{{r.key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %}>{{r.nombre}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <br>
+      {% endif %}
+      {% if user.role == "supervisor" %}
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-md-4">
+                <form>
+                    <div class="form-group col-xs-8 form-np">
+                      <select class="form-control" name="urlkey_ruta" required>
+                        <option value="">Todas las rutas</option>
+                        {% for r in rutaSupervisor %}
+                          <option value="{{r.ruta.get().key.urlsafe()}}" {% if r_actual.key==r.ruta.get().key %} selected {% endif %}>{{r.ruta.get().nombre}}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <button class="btn btn-primary col-xs-4" type="submit">Seleccionar</button>
+                </form>
+                </div>
+            </div>
+        </div>
+        <br>
+      {% endif %}
+      <div class="col-lg-12 bigscreen">
+          <p class="bg-primary text-center">Información de créditos del cliente</p>
+          <div class="table-responsive">
+              <table class="table table-hover table-striped table-condensed size-12  table-bordered">
+                  <thead>
+                      <tr>
+                          <th>Consecutivo</th>
+                          <th>Código Tajerta</th>
+                          <th>Fecha Crédito</th>
+                          <th>Nombres</th>
+                          <th>Valor Cŕedito</th>
+                          <th>Interés %</th>
+                          <th>Estado</th>
+                          <th>Saldo</th>
+                          <th>Dias</th>
+                          <th>Último Pago</th>
+                          <th>Fecha Venc.</th>
+                          <th>Valor Cuota</th>
+                          <th>Cuotas Faltantes</th>
+                          <th></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for c in creditos|sort(attribute='nombres') %}
+                          <tr {% if c.activo == False %} class="danger inactive" {% endif %}>
+                              <td>{{c.consecutivo}}</td>
+                              <td>{{c.codigo}}</td>
+                              <td>{{(c.fecha_cre).strftime("%d/%m/%Y")}}</td>
+                              <td>{{c.cliente.get().nombres}} {{c.cliente.get().apellidos}}</td>
+                              <td>{{c.valor|currency}}</td>
+                              <td>{{c.tasa}}</td>
+                              <td>{{c.estado}}</td>
+                              <td>{{c.saldo|currency}}</td>
+                              <td>{{c.dias}}</td>
+                              {% if c.fecha_ult_pago %}
+                                <td>{{(c.fecha_ult_pago).strftime("%d/%m/%Y")}}</td>
+                              {% else %}
+                                <td>--</td>
+                              {% endif %}
+                              <td>{{c.fecha_ven}}</td>
+                              <td>{{c.valor_cuota|currency}}</td>
+                              <td>{{c.cuotas_faltantes|round(1)}}</td>
+                              <td style="min-width: 120px">
+                                <form action="/credito" method="post">
+                                  <input type="hidden" name="key" value="{{c.key.urlsafe()}}">
+                                  <input type="hidden" name="urlkey_ruta" value="{{c.ruta.urlsafe()}}">
+                                  <button class="btn btn-success pull-left" style="padding:1px 6px; margin-right:7px;"><i class="fa fa-fw fa-chevron-down"></i></button>
+                                </form>                                  
+                                {% if user.role == "admin" %}
+                                  {% if c.creado >= hoy %}
+                                    <form action="/credito/borrar" method="post">
+                                      <input type="hidden" name="urlkey_credito" value="{{c.key.urlsafe()}}">
+                                      <button class="btn btn-danger pull-right" style="padding:1px 6px;"><i class="fa fa-fw fa-times-circle"></i></button>
+                                    </form>
+                                  {% endif %}
+                                {% endif %}
+                                {% if user.role == "supervisor" %}
+                                  {% if c.creado >= hoy %}
+                                    <form action="/credito/borrar" method="post">
+                                      <input type="hidden" name="urlkey_credito" value="{{c.key.urlsafe()}}">
+                                      <button class="btn btn-danger pull-right" style="padding:1px 6px;"><i class="fa fa-fw fa-times-circle"></i></button>
+                                    </form>
+                                  {% endif %}
+                                {% endif %}
+                              </td>
+                          </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      <div class="col-lg-12 smallscreen">
+        <p class="bg-primary text-center">Información de créditos del cliente</p>
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+          {% for c in creditos|sort(attribute='nombres') %}
+            <div class="panel-heading" role="tab" id="heading{{c.key.id()}}" style="padding:0px;">
+              <div class="panel-title">
+                <table class="table table-hover size-12  table-bordered" style="margin-bottom:0px;">
+                {% if loop.first %}
+                <thead>
+                    <tr>
+                        <th class="col-xs-4">Cliente</th>
+                        <th class="col-xs-4">Saldo</th>
+                        <th class="col-xs-4">Acción</th>
+                    </tr>
+                </thead>
+                {% endif %}
+                <tbody>
+                  <tr>
+                  <td class="col-xs-4">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{c.key.id()}}" aria-expanded="true" aria-controls="collapse{{c.key.id()}}" style="display:block; text-decoration:None; color: black">
+                    {{c.cliente.get().nombres}} {{c.cliente.get().apellidos}} 
+                  </a>
+                  </td>
+                  <td class="col-xs-4">{{c.saldo|currency}}</td>
+                  <td style="min-width: 120px" class="col-xs-4">
+                    <form action="/credito" method="post">
+                        <input type="hidden" name="key" value="{{c.key.urlsafe()}}">
+                        <input type="hidden" name="urlkey_ruta" value="{{c.ruta.urlsafe()}}">
+                        <button class="btn btn-success pull-left" style="padding:1px 6px; margin-right:7px;"><i class="fa fa-fw fa-chevron-down"></i></button>
+                    </form>                                      
+                    {% if user.role == "admin" %}
+                        {% if c.creado >= hoy %}
+                        <form action="/credito/borrar" method="post">
+                            <input type="hidden" name="urlkey_credito" value="{{c.key.urlsafe()}}">
+                            <button class="btn btn-danger pull-right" style="padding:1px 6px;"><i class="fa fa-fw fa-trash"></i></button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                    {% if user.role == "supervisor" %}
+                        {% if c.creado >= hoy %}
+                        <form action="/credito/borrar" method="post">
+                            <input type="hidden" name="urlkey_credito" value="{{c.key.urlsafe()}}">
+                            <button class="btn btn-danger pull-right" style="padding:1px 6px;"><i class="fa fa-fw fa-trash"></i></button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                </td>
+                  </tr>
+                </tbody>
+                </table>
+              </div>
+            </div>
+            <div id="collapse{{c.key.id()}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{c.key.id()}}">
+              <div class="panel-body">
+                <strong>Consecutivo:</strong> {{c.consecutivo}}<br>
+                <strong>Código Tarjeta:</strong> {{c.codigo}}<br>
+                <strong>Fecha Crédito:</strong> {{(c.fecha_cre).strftime("%d/%m/%Y")}}<br>
+                <strong>Valor Cŕedito:</strong> {{c.valor|currency}}<br>
+                <strong>Interés:</strong> {{c.tasa}}<br>
+                <strong>Estado:</strong> {{c.estado}}<br>
+                <strong>Días:</strong> {{c.dias}}<br>
+                {% if c.fecha_ult_pago %}
+                  <strong>Último Pago:</strong> {{(c.fecha_ult_pago).strftime("%d/%m/%Y")}}<br>
+                {% else %}
+                  <strong>Último Pago:</strong> --<br>
+                {% endif %}
+                <strong>Fecha Venc.:</strong> {{c.fecha_ven}}<br>
+                <strong>Valor Cuota:</strong> {{c.valor_cuota|currency}}<br>
+                <strong>Cuotas Faltantes:</strong> {{c.cuotas_faltantes|round(1)}}<br> 
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% if c_actual %} 
+      <div class="col-lg-12">
+          <p class="bg-primary text-center">Abonos de <strong>{{c_actual.cliente.get().nombres}} {{c_actual.cliente.get().apellidos}}</strong> al crédito <strong>#{{c_actual.consecutivo}}</strong></p>
+          {% if abonos %} 
+          <div class="table-responsive">
+              <table class="table table-hover table-striped table-condensed size-12  table-bordered">
+                  <thead>
+                      <tr> 
+                          <th>Código</th>
+                          <th>Fecha Abono</th>
+                          <th>Valor</th>
+                          <th>Borrar</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for a in abonos %}
+                      <tr>
+                        <td>{{a.consecutivo}}</td>
+                        <td>{{(a.creado|gmt6).strftime("%d/%m/%Y a las %I:%M %p")}}</td>
+                        <td>{{a.valor}}</td>
+                        <td>
+                          {% if user.role == "admin" and a.creado >= hoy %}
+                            <form action="/abono/borrar" method="post">
+                              <input type="hidden" name="urlkey_abono" value="{{a.key.urlsafe()}}"/>
+                              <button type="submit" class="btn btn-danger pull-right" style="padding:1px 6px;"><i class="fa fa-fw fa-trash"></i></button>
+                            </form>                            
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+          {% else %}
+          <h5>El cliente aún no ha realizado abonos a este crédito</h5>
+          {% endif %}
+      </div>
+      </div>
+      {% endif %}
+        <!-- /.row -->
+    </div>
+    <br>
+    <br>
+    <br>
+    <!-- /.container-fluid -->
+</div>
+<!-- /#page-wrapper -->
+{% endblock %}

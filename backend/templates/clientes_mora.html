@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% set ruta = "reportes" %}
+{% block body %}
+
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <h3>Clientes que no han pagado la primera cuota</h3>
+        <br>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Clientes</h3>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table table-striped table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Consecutivo</th>
+                                <th>Código Tarjeta</th>
+                                <th>Fecha</th>
+                                <th>Saldo</th>
+                                <th>Doc</th>
+                                <th>Cliente</th>
+                                <th>Dirección</th>
+                                <th>Telefono</th>
+                                <th>Ruta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for c in creditos %}
+                            <tr>
+                                <td>{{c.consecutivo}}</td>
+                                <td>{{c.codigo}}</td>
+                                <td>{{(c.creado|gmt6).strftime("%d/%m/%Y")}}</td>
+                                <td>{{c.saldo|currency}}</td>
+                                <td>{{c.cliente.get().documento}}</td>
+                                <td>{{c.cliente.get().nombres}} {{c.cliente.get().apellidos}}</td>
+                                <td>{{c.cliente.get().direccion}}</td>
+                                <td>{{c.cliente.get().celular}}</td>
+                                <td>{{c.ruta.get().nombre}}</td>
+                                </tr>
+                        {% else %}
+                        <tr><td>No hay clientes en mora</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</div>
+<script type="text/javascript">
+    $('select').change(function() {
+        if ($(this).children('option:first-child').is(':selected')) {
+            $(this).addClass('placeholder');
+        } else {
+            $(this).removeClass('placeholder');
+        }
+    });
+    $( "#fecha_string" ).datepicker();
+</script>
+<!-- /#page-wrapper -->
+{% endblock %}

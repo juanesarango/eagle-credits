@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% set ruta = "reportes" %}
+{% block body %}
+
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <h3>Cuadre de Ruta 
+        {% if r_actual %}<small> (Ruta: {{r_actual}})</small>{% endif %}</h3>
+        <br>
+        <div class="row">
+            <div class="col-md-8">
+                <form>
+                    {% if user.role == "admin" %}
+                    <div class="form-group col-sm-3">
+                        <select class="form-control" name="urlkey_ruta">
+                            <option value="">Todas las rutas</option>
+                            {% for r in rutas %}
+                                <option value="{{r.key.urlsafe()}}" {% if r_actual.key==r.key %} selected {% endif %} >{{r.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    {% if user.role == "supervisor" %}
+                    <div class="form-group col-sm-3">
+                        <select class="form-control" name="urlkey_ruta">
+                            <option value="">Todas las rutas</option>
+                            {% for r in rutaSupervisor %}
+                                <option value="{{r.ruta.get().key.urlsafe()}}" {% if r_actual.key==r.ruta.get().key %} selected {% endif %}>{{r.ruta.get().nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <div class="form-group col-sm-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="fecha_down_string" name="fecha_down_str" placeholder="Desde" autocomplete="off" required><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="fecha_up_string" name="fecha_up_str" placeholder="Hasta" autocomplete="off" required><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary col-sm-3" type="submit">Seleccionar</button>
+                </form>
+            </div>
+        </div>
+    
+        <br>
+        {% for stats_ruta in stats %}
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">{% if stats_ruta[0] %} {{stats_ruta[0].ruta.get().nombre}} {% endif %}</h3>
+                        </div>
+                        <div class="panel-body table-responsive">
+                            <table class="table table-striped table-condensed table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Abonos</th>
+                                    <th>Créditos</th>
+                                    <th>Gastos</th>
+                                    <th>Sueldo</th>
+                                    <th>E Efectivo</th>
+                                    <th>S Efectivo</th>
+                                    <th>S socios</th>
+                                    <th>Caja anterior</th>
+                                    <th>Saldo</th>
+                                    <th>Cuota</th>
+                                    <th>% Abono</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in stats_ruta %}
+                                    <tr>
+                                        <td>{{s.fecha}}</td>
+                                        <td>{{s.abonos|currency}}</td>
+                                        <td>{{s.creditos|currency}}</td>
+                                        <td>{{s.gastos|currency}}</td>
+                                        <td>{{s.sueldos|currency}}</td>
+                                        <td>{{s.entradas|currency}}</td>
+                                        <td>{{s.salidas|currency}}</td>
+                                        <td>{{s.salidas_socio|currency}}</td>
+                                        <td>{{s.caja_anterior|currency}}</td>
+                                        <td>{{s.saldo|currency}}</td>
+                                        <td>{{s.cuota|currency}}</td>
+                                        <td>{{s.porcentaje_abonos}}%</td>
+                                        <td>{{s.total|currency}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td><strong>Totales</strong></td>
+                                    <td><strong>{{(stats_ruta|sum_stats('abonos'))|currency}}</strong></td>
+                                    <td><strong>{{(stats_ruta|sum_stats('creditos'))|currency}}</strong></td>
+                                    <td><strong>{{(stats_ruta|sum_stats('gastos'))|currency}}</strong></td>
+                                    <td><strong>{{(stats_ruta|sum_stats('sueldos'))|currency}}</strong></td>
+                                    <td><strong>{{(stats_ruta|sum_stats('entradas'))|currency}}</strong></td>
+                                    <td><strong>{{(stats_ruta|sum_stats('salidas'))|currency}}</strong></td>
+                                    <td><strong>{{(stats_ruta|sum_stats('salidas_socio'))|currency}}</strong></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <!-- /.container-fluid -->
+</div>
+<script type="text/javascript">
+    $('select').change(function() {
+        if ($(this).children('option:first-child').is(':selected')) {
+            $(this).addClass('placeholder');
+        } else {
+            $(this).removeClass('placeholder');
+        }
+    });
+    $( "#fecha_up_string" ).datepicker();
+    $( "#fecha_down_string" ).datepicker();
+</script>
+<!-- /#page-wrapper -->
+{% endblock %}

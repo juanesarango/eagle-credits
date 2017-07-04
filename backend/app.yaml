@@ -1,0 +1,50 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+instance_class: F4
+automatic_scaling:
+  min_idle_instances: 3
+  max_idle_instances: automatic  # default value
+  min_pending_latency: 25ms  # default value
+  max_pending_latency: automatic
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /static
+  static_dir: templates/static
+
+# - url: /_ah/spi/.*
+#   script: services.APPLICATION
+
+- url: /.*
+  script: main.app
+
+# - url: /fonts
+#   static_dir: dist/fonts
+
+# - url: /assets
+#   static_dir: dist/assets
+
+# - url: .*
+#   static_files: dist/index.html
+#   login: required
+#   upload: dist/index.html
+#   secure: always
+
+builtins:
+- remote_api: on
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+- name: pycrypto
+  version: latest
+- name: endpoints
+  version: 1.0
+- name: ssl
+  version: latest
+- name: jinja2
+  version: latest

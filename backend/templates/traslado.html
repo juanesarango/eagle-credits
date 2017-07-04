@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% set ruta = "credito" %}
+{% block body %}
+
+<div id="page-wrapper">
+
+    <div class="container-fluid">
+        <h1>Traslado de efectivo entre Rutas</h1>
+        <br>
+        <br>
+        <br>
+        <div class="row">
+        <form method="post">
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Ruta origen</h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for r in rutas %}
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="urlkey_ruta_origen" value="{{r.key.urlsafe()}}">
+                                    {{r.nombre}} ... {{r.saldo|currency}}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>              
+            </div>
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Valor</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <input type="number" class="form-control" name="valor" id="valor" placeholder="Valor a transferir">
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block">Trasnferir <span class="glyphicon glyphicon-chevron-right"></span></button>
+                    </div>
+                </div>       
+            </div>
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Ruta Destino</h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for r in rutas %}
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="urlkey_ruta_destino" value="{{r.key.urlsafe()}}">
+                                    {{r.nombre}} ... {{r.saldo|currency}}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>       
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
