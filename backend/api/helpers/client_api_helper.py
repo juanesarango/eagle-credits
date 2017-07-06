@@ -1,3 +1,5 @@
+"""This helper contains the methods use in the clients messages"""
+
 from api.helpers import BaseApiHelper
 from api.messages import ClientResponse
 
@@ -5,10 +7,13 @@ from core.models import Cliente
 
 
 class ClientApiHelper(BaseApiHelper):
+    """This helper contains the methods use in the clients messages"""
 
     _model = Cliente
 
-    def to_message(self, entity):
+    @staticmethod
+    def to_message(entity):
+        """Method to format the message sent."""
         return ClientResponse(
             id=entity.key.id(),
             documento=entity.documento,

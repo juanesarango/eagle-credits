@@ -1,3 +1,6 @@
+"""This is the controller for all the clients API"""
+
+import time
 import endpoints
 from protorpc import message_types
 
@@ -11,8 +14,6 @@ from api.messages import ID_resource
 
 from core.models import Cliente
 from core.helpers import ClientHelper
-
-import time
 
 
 @eagle_api.api_class(resource_name='clientes', path='cliente')

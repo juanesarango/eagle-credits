@@ -10,8 +10,12 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# gcloud datastore create-indexes index.yaml
-# gcloud datastore cleanup-indexes index.yaml
+- kind: Abono
+  properties:
+  - name: cliente
+  - name: ruta
+  - name: creado
+    direction: desc
 
 - kind: Abono
   properties:
@@ -23,13 +27,6 @@ indexes:
   - name: ruta
   - name: creado
 
-- kind: Abono
-  properties:
-  - name: cliente
-  - name: ruta
-  - name: creado
-    direction: desc
-
 - kind: Cliente
   properties:
   - name: credito_activo
@@ -49,9 +46,36 @@ indexes:
 - kind: Credito
   properties:
   - name: activo
+  - name: cliente
+  - name: estado
+  - name: creado
+    direction: desc
+
+- kind: Credito
+  properties:
+  - name: activo
   - name: estado
   - name: ruta
   - name: creado
+
+- kind: Credito
+  properties:
+  - name: cliente
+  - name: creado
+
+- kind: Credito
+  properties:
+  - name: cliente
+  - name: creado
+    direction: desc
+
+- kind: Credito
+  properties:
+  - name: cliente
+  - name: ruta
+  - name: estado
+  - name: creado
+    direction: desc
 
 - kind: Credito
   properties:
@@ -63,6 +87,13 @@ indexes:
   - name: estado
   - name: ruta
   - name: creado
+
+- kind: Credito
+  properties:
+  - name: estado
+  - name: ruta
+  - name: creado
+    direction: desc
 
 - kind: Credito
   properties:
@@ -71,22 +102,8 @@ indexes:
 
 - kind: Credito
   properties:
-  - name: cliente
+  - name: ruta
   - name: creado
-
-- kind: Credito
-  properties:
-  - name: activo
-  - name: cliente
-  - name: estado
-  - name: creado
-    direction: desc
-
-- kind: Credito
-  properties:
-  - name: cliente
-  - name: creado
-    direction: desc
 
 - kind: Credito
   properties:
@@ -99,34 +116,14 @@ indexes:
   - name: saldo
   - name: fecha_ult_pago
 
-- kind: Credito
-  properties:
-  - name: ruta
-  - name: creado
-
 - kind: StatsDiarias
   properties:
   - name: ruta
   - name: fecha
 
-- kind: Credito
-  properties:
-  - name: estado
-  - name: ruta
-  - name: creado
-    direction: desc
-
-- kind: Credito
-  properties:
-  - name: cliente
-  - name: ruta
-  - name: estado
-  - name: creado
-    direction: desc
-
 - kind: Transaccion
   properties:
-  - name: ruta
+  - name: activo
   - name: creado
     direction: desc
 
@@ -138,6 +135,6 @@ indexes:
 
 - kind: Transaccion
   properties:
-  - name: activo
+  - name: ruta
   - name: creado
     direction: desc

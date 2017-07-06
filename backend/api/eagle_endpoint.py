@@ -1,5 +1,6 @@
-import endpoints
+"""Endpoint definition."""
 
+import endpoints
 
 eagle_api = endpoints.api(
     name='eagleApi',

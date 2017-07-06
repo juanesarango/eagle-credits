@@ -1,14 +1,12 @@
-"""
-These messages are called when it initialises for accessing them more easily.
-"""
+"""These messages are called when it initialises for accessing them more easily."""
 
 import endpoints
 from protorpc import messages
 from protorpc import message_types
 
-from client_api_messages import ClientRequest
-from client_api_messages import ClientResponse
-from client_api_messages import ClientListResponse
+from api.messages.client_api_messages import ClientRequest
+from api.messages.client_api_messages import ClientResponse
+from api.messages.client_api_messages import ClientListResponse
 
 
 # This Resource container is created for reading parameters from the URL request
